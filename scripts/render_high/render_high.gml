@@ -458,26 +458,50 @@ if (render_camera_bloom || render_camera_dof || setting_render_glow || setting_r
 }
 #endregion
 
-#region ssr
-
-	var prefsurf = finalsurf
-	render_surface[nextfinalpos] = surface_require(render_surface[nextfinalpos], render_width, render_height)
-	finalsurf = render_surface[nextfinalpos]
-	nextfinalpos = !nextfinalpos
+#region SSR
+if (true)
+{
+	var depthsurf, normalsurf;
+	render_surface[2] = surface_require(render_surface[2], render_width, render_height) //depth
+	render_surface[3] = surface_require(render_surface[3], render_width, render_height) //normal
+	depthsurf = render_surface[2]
+	normalsurf = render_surface[3]
 	
-	surface_set_target(finalsurf)
+	log("depthsurf", depthsurf)
+	log("normalsurf", normalsurf)
+	
+	surface_set_target_ext(0, depthsurf)
+	surface_set_target_ext(1, normalsurf)
 	{
-		draw_clear_alpha(c_black, 0)
-		
-		render_shader_obj = shader_map[?shader_high_ssr]
-		with (render_shader_obj)
-			shader_use()
-			shader_high_ssr_set(depth,normal)//,proj,view)
-		draw_surface_exists(prevsurf, 0, 0)
-		with (render_shader_obj)
-			shader_clear()
+		draw_clear_alpha(c_white, 0)
+		render_world_start(5000)
+		render_world(e_render_mode.HIGH_SSAO_DEPTH_NORMAL)
+		render_world_done()
 	}
 	surface_reset_target()
+    
+	var prefsurf = finalsurf;
+	render_surface[nextfinalpos] = surface_require(render_surface[nextfinalpos], render_width, render_height)
+	finalsurf = render_surface[nextfinalpos]
+	nextfinalpos = !nextfinalpos 
+	
+	surface_set_target(finalsurf)
+    {
+        draw_clear_alpha(c_black, 0)
+        
+        render_shader_obj = shader_map[?shader_high_ssr]
+        with (render_shader_obj)
+        {
+            shader_set(shader)
+            shader_high_ssr_set(depthsurf, normalsurf)
+        }
+        draw_surface_exists(prevsurf, 0, 0)
+        with (render_shader_obj)
+            shader_clear()
+    }
+    surface_reset_target()
+
+}
 #endregion
 
 #region Bloom
