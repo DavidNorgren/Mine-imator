@@ -87,6 +87,14 @@
             }
         },
         {
+            "Key": "0105bdd5-65b8-4099-b479-8ca98c880d5f",
+            "Value": {
+                "id": "a7d73361-9574-4d88-a6f8-a9affa35f505",
+                "resourcePath": "scripts\\shader_high_ssr_set\\shader_high_ssr_set.yy",
+                "resourceType": "GMScript"
+            }
+        },
+        {
             "Key": "01171463-322c-4e57-a352-932b7c5fd034",
             "Value": {
                 "id": "87b54663-949a-4ebb-9ca2-1ccbbe0b50b3",
@@ -8863,6 +8871,14 @@
             }
         },
         {
+            "Key": "93d18e14-4c38-4848-965b-27f1937e7203",
+            "Value": {
+                "id": "4c8ca4c6-011c-4066-9fbc-63b9846028d1",
+                "resourcePath": "views\\93d18e14-4c38-4848-965b-27f1937e7203.yy",
+                "resourceType": "GMFolder"
+            }
+        },
+        {
             "Key": "93d24fb3-bb8f-4073-9691-73aca7788650",
             "Value": {
                 "id": "f69bf642-96bc-42b1-96dd-e89eec3f1365",
@@ -13663,6 +13679,14 @@
             }
         },
         {
+            "Key": "e0a73daa-e1af-4b6b-a85b-782246a037e4",
+            "Value": {
+                "id": "3ad5400b-87e5-4b80-83a3-ddee1562b015",
+                "resourcePath": "shaders\\shader_high_ssr\\shader_high_ssr.yy",
+                "resourceType": "GMShader"
+            }
+        },
+        {
             "Key": "e0afac2e-d90b-4ed8-ba7a-e1723169c9cd",
             "Value": {
                 "id": "52bbec17-263f-413e-92de-97b345bd7028",
@@ -16774,6 +16798,7 @@
         "958bf315-da57-45d0-b482-7c01d5656508",
         "03c7002f-4a83-4cd1-8128-3873f253b371",
         "91f7487c-7f3a-4306-a95d-ccf7e047e98b",
+        "0105bdd5-65b8-4099-b479-8ca98c880d5f",
         "0bb3f0f1-8cbd-46b7-b774-e82fb09e01ea",
         "9ff39a74-b1fc-4174-bd91-6f279795051a",
         "4768652a-a850-4af1-a949-139bd12b332c",

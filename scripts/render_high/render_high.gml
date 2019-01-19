@@ -323,7 +323,7 @@ if (background_fog_show)
 #region Apply Environment effects
 
 // Render directly to target?
-if (!render_camera_bloom && !render_camera_dof && !setting_render_aa && !render_overlay && !render_camera_color_correction && !render_camera_grain && !render_camera_vignette)
+if (!render_camera_bloom && !render_camera_dof && !setting_render_aa && !render_overlay && !render_camera_color_correction && !render_camera_grain && !render_camera_vignette && !setting_render_ssr)
 {
 	render_target = surface_require(render_target, render_width, render_height)
 	finalsurf = render_target
@@ -442,7 +442,7 @@ surface_reset_target()
 // Post processing starts here, finalsurf will ping-pong between [0] and [1] if effects are enabled
 
 #region Put finalsurf in [0] if there's any post processing
-if (render_camera_bloom || render_camera_dof || setting_render_glow || setting_render_aa || render_overlay || render_camera_color_correction || render_camera_vignette)
+if (render_camera_bloom || render_camera_dof || setting_render_glow || setting_render_aa || render_overlay || render_camera_color_correction || render_camera_vignette || setting_render_ssr)
 {
 	var prevsurf = finalsurf;
 	render_surface[0] = surface_require(render_surface[0], render_width, render_height)
@@ -456,6 +456,28 @@ if (render_camera_bloom || render_camera_dof || setting_render_glow || setting_r
 	}
 	surface_reset_target()
 }
+#endregion
+
+#region ssr
+
+	var prefsurf = finalsurf
+	render_surface[nextfinalpos] = surface_require(render_surface[nextfinalpos], render_width, render_height)
+	finalsurf = render_surface[nextfinalpos]
+	nextfinalpos = !nextfinalpos
+	
+	surface_set_target(finalsurf)
+	{
+		draw_clear_alpha(c_black, 0)
+		
+		render_shader_obj = shader_map[?shader_high_ssr]
+		with (render_shader_obj)
+			shader_use()
+			shader_high_ssr_set(depth,normal,proj,view)
+		draw_surface_exists(prevsurf, 0, 0)
+		with (render_shader_obj)
+			shader_clear()
+	}
+	surface_reset_target()
 #endregion
 
 #region Bloom

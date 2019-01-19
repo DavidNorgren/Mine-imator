@@ -7,18 +7,6 @@ uniform float uSize;
 
 uniform vec2 uScreenSize;
 
-vec4 rnm(vec2 tc){
-	float noise = sin(dot(tc + vec2(uTime,uTime), vec2(12.9898, 78.233))) * 43758.5453;
-	float noiseR = fract(noise) * 2.0 - 1.0;
-	float noiseG = fract(noise * 1.2154) * 2.0 - 1.0;
-	float noiseB = fract(noise * 1.3453) * 2.0 - 1.0;
-	float noiseA = fract(noise * 1.3647) * 2.0 - 1.0;
-	return vec4(noiseR,noiseG,noiseB,noiseA);
-}
-
-float fade(float t){
-	return t*t*t*(t*(t*6.0-15.0)+10.0)
-}
 
 vec4 hsbtorgb(vec4 c)
 {

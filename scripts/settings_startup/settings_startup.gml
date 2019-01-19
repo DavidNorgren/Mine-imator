@@ -168,6 +168,7 @@ setting_render_ssao_power = 1
 setting_render_ssao_samples = 16
 setting_render_ssao_blur_passes = 2
 setting_render_ssao_color = c_black
+setting_render_ssr = true
 setting_render_shadows = true
 setting_render_shadows_sun_buffer_size = 2048
 setting_render_shadows_spot_buffer_size = 512
