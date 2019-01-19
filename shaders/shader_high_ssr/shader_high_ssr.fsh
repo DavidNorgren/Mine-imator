@@ -1,6 +1,7 @@
 uniform vec2 uScreenSize;
 uniform float uPower;
 
+uniform sampler2D uColorBuffer;
 uniform sampler2D uDepthBuffer;
 uniform sampler2D uNormalBuffer;
 
@@ -20,8 +21,6 @@ int maxSteps = 30;
 int numBinarySearchSteps = 5;
 float reflectionSpecularFalloffExponent = 3.0;
 
-
-
 //vec2 texelSize = 1.0 / uScreenSize;
 
 float unpackDepth(vec4 c)
@@ -36,7 +35,6 @@ vec3 unpackNormal(vec4 c)
 
 float transformDepth(float depth)
 {
-	
     return (uFar - (uNear * uFar) / (depth * (uFar - uNear) + uNear)) / (uFar - uNear);
 }
 
@@ -50,8 +48,6 @@ vec3 posFromBuffer(vec2 coord, float depth)
 vec3 BinarySearch(vec3 dir, inout vec3 hitCoord, out float dDepth);
 
 vec4 RayCast(vec3 dir, inout vec3 hitCoord, out float dDepth);
-
-
 
 void main()
 {
@@ -68,7 +64,7 @@ void main()
 	
 	vec4 coords = RayCast(reflected * max(minRayStep, -viewPos.z), hitPos, dDepth);
 	
-	vec4 ssr = texture2D(gm_BaseTexture, coords.xy);
+	vec4 ssr = texture2D(uColorBuffer, coords.xy);
 	
 	gl_FragColor = ssr;
 }

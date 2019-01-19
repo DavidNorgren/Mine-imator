@@ -463,9 +463,11 @@ if (render_camera_bloom || render_camera_dof || setting_render_glow || setting_r
 #region SSR
 if (true)
 {
-	var depthsurf, normalsurf;
-	render_surface[2] = surface_require(render_surface[2], render_width, render_height) //depth
-	render_surface[3] = surface_require(render_surface[3], render_width, render_height) //normal
+	var prevsurf, depthsurf, normalsurf;
+	prevsurf = finalsurf
+	
+	render_surface[2] = surface_require(render_surface[2], render_width, render_height) // Depth
+	render_surface[3] = surface_require(render_surface[3], render_width, render_height) // Normals
 	depthsurf = render_surface[2]
 	normalsurf = render_surface[3]
 	surface_set_target_ext(0, depthsurf)
@@ -476,29 +478,19 @@ if (true)
 		render_world_done()
 	}
 	surface_reset_target()
-
-	var prefsurf = finalsurf;
-	render_surface[nextfinalpos] = surface_require(render_surface[nextfinalpos], render_width, render_height)
-	finalsurf = render_surface[nextfinalpos]
-	nextfinalpos = !nextfinalpos
-
-	log("depthsurf", depthsurf)
-	log("normalsurf", normalsurf)
-
-	surface_set_target_ext(0, depthsurf)
-	surface_set_target_ext(1, normalsurf)
+	
+	// Render directly to target?(Let's pretend we're DOF for testing purposes)
+	if (!setting_render_glow && !setting_render_aa && !render_overlay && !render_camera_color_correction && !render_camera_grain && !render_camera_vignette)
 	{
-		draw_clear_alpha(c_white, 0)
-		render_world_start(5000)
-		render_world(e_render_mode.HIGH_SSAO_DEPTH_NORMAL)
-		render_world_done()
+		render_target = surface_require(render_target, render_width, render_height)
+		finalsurf = render_target
 	}
-	surface_reset_target()
-
-	var prefsurf = finalsurf;
-	render_surface[nextfinalpos] = surface_require(render_surface[nextfinalpos], render_width, render_height)
-	finalsurf = render_surface[nextfinalpos]
-	nextfinalpos = !nextfinalpos
+	else
+	{
+		render_surface[nextfinalpos] = surface_require(render_surface[nextfinalpos], render_width, render_height)
+		finalsurf = render_surface[nextfinalpos]
+		nextfinalpos = !nextfinalpos
+	}
 
 	surface_set_target(finalsurf)
     {
@@ -508,11 +500,12 @@ if (true)
         with (render_shader_obj)
         {
             shader_set(shader)
-            shader_high_ssr_set(depthsurf, normalsurf, proj_matrix)
+            shader_high_ssr_set(prevsurf, depthsurf, normalsurf, proj_matrix)
         }
-        draw_surface_exists(prevsurf, 0, 0)
+        draw_blank(0, 0, render_width, render_height)
         with (render_shader_obj)
             shader_clear()
+		
     }
     surface_reset_target()
 
