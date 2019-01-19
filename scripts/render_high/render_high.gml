@@ -5,6 +5,8 @@ var starttime;
 var ssaosurf, shadowsurf, fogsurf, finalsurf, nextfinalpos;
 nextfinalpos = 0
 
+
+
 starttime = current_time
 render_surface_time = 0
 
@@ -506,7 +508,7 @@ if (true)
         with (render_shader_obj)
         {
             shader_set(shader)
-            shader_high_ssr_set(depthsurf, normalsurf)
+            shader_high_ssr_set(depthsurf, normalsurf, proj_matrix)
         }
         draw_surface_exists(prevsurf, 0, 0)
         with (render_shader_obj)

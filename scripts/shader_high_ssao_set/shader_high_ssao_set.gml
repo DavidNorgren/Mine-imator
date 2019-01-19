@@ -13,6 +13,8 @@ gpu_set_texrepeat_ext(sampler_map[?"uNormalBuffer"], false)
 gpu_set_texrepeat_ext(sampler_map[?"uBrightnessBuffer"], false)
 gpu_set_texrepeat_ext(sampler_map[?"uNoiseBuffer"], true)
 
+log("matrix for ssao",proj_matrix)
+
 render_set_uniform("uNear", cam_near)
 render_set_uniform("uFar", cam_far)
 render_set_uniform("uProjMatrix", proj_matrix)
