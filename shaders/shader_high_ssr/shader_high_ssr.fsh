@@ -15,7 +15,7 @@ varying vec2 vTexCoord;
 float uNear = 0.1;
 float uFar = 5000.0;
 
-float step = 0.01;
+float _step = 10.0;
 float minRayStep = 0.1;
 int maxSteps = 30;
 int numBinarySearchSteps = 5;
@@ -54,19 +54,21 @@ void main()
 	//gl_FragColor = vec4(vTexCoord, 1.0, 1.0);
 
 	float depth = unpackDepth(texture2D(uDepthBuffer, vTexCoord));
-	vec3 viewNormal = unpackNormal(texture2D(uNormalBuffer, vTexCoord));
+	vec3 viewNormal = normalize(unpackNormal(texture2D(uNormalBuffer, vTexCoord)));
 	vec3 viewPos = posFromBuffer(vTexCoord, depth);
-	vec3 reflected = normalize(reflect(normalize(viewPos), normalize(viewNormal)));
+	//viewPos.z = -viewPos.z;
 	
+	vec3 reflected = normalize(reflect(normalize(viewPos), normalize(viewNormal)));
+
 	
 	vec3 hitPos = viewPos;
 	float dDepth;
 	
-	vec4 coords = RayCast(reflected * max(minRayStep, -viewPos.z), hitPos, dDepth);
+	vec4 coords = RayCast(reflected * _step, hitPos, dDepth);
 	
 	vec4 ssr = texture2D(uColorBuffer, coords.xy);
 	
-	gl_FragColor = ssr;
+	gl_FragColor = ssr;// + vec4(reflected,1.0);//vec4(vec3(depth), 1.0) + (ssr*0.001);
 }
 
 
@@ -100,17 +102,15 @@ vec3 BinarySearch(vec3 dir, inout vec3 hitCoord, out float dDepth)
     vec4 projectedCoord = uProjMatrix * vec4(hitCoord, 1.0);
     projectedCoord.xy /= projectedCoord.w;
     projectedCoord.xy = projectedCoord.xy * 0.5 + 0.5;
-
-
-    return vec3(projectedCoord.xy, depth);
+	
+	return vec3(projectedCoord.xy, depth);
 }
 
 
 vec4 RayCast(vec3 dir, inout vec3 hitCoord, out float dDepth)
 {
 
-    dir *= step;
-
+    dir *= 1.0;
 
     float depth;
     vec4 projectedCoord;
@@ -128,7 +128,7 @@ vec4 RayCast(vec3 dir, inout vec3 hitCoord, out float dDepth)
 		texture2D(uDepthBuffer, projectedCoord.xy)
 		));
 		
-        if(depth > 1000.0)
+        if(depth > 1000000.0)
             continue;
 
         dDepth = hitCoord.z - depth;
@@ -148,5 +148,5 @@ vec4 RayCast(vec3 dir, inout vec3 hitCoord, out float dDepth)
 
     }
 
-    return vec4(projectedCoord.xy, depth, 0.0);
+	return vec4(0.0);
 }
