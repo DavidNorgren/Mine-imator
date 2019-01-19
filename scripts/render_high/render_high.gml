@@ -472,7 +472,7 @@ if (render_camera_bloom || render_camera_dof || setting_render_glow || setting_r
 		render_shader_obj = shader_map[?shader_high_ssr]
 		with (render_shader_obj)
 			shader_use()
-			shader_high_ssr_set(depth,normal,proj,view)
+			shader_high_ssr_set(depth,normal)//,proj,view)
 		draw_surface_exists(prevsurf, 0, 0)
 		with (render_shader_obj)
 			shader_clear()
