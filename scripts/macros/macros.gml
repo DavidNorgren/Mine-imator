@@ -2,7 +2,7 @@
 /// @desc Defines constants used in the project.
 
 // Debug
-#macro dev_mode						false
+#macro dev_mode						true
 #macro dev_mode_debug_schematics	dev_mode && false
 #macro dev_mode_debug_names			dev_mode && true
 #macro dev_mode_debug_unused		dev_mode && true

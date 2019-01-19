@@ -52,7 +52,7 @@ if (!err)
 	new_shader("shader_noise")
 	new_shader("shader_high_light_desaturate")
 	new_shader("shader_high_ssr")
-	
+
 	shader_texture_surface = false
 	shader_texture_filter_linear = false
 	shader_texture_filter_mipmap = false
@@ -60,7 +60,7 @@ if (!err)
 	with (obj_shader)
 	{
 		log(name + " compiled", yesno(shader_is_compiled(shader)))
-		
+
 		if (!shader_is_compiled(shader))
 		{
 			err = true
@@ -75,7 +75,7 @@ if (err)
 	log("Try updating your graphics drivers", link_article_drivers)
 	if (show_question("Some shaders failed to compile.\nCheck that your graphics drivers are up-to-date and restart Mine-imator.\n\nOpen support article about updating graphics drivers?"))
 		open_url(link_article_drivers)
-		
+
 	game_end()
 	return false
 }
@@ -182,7 +182,7 @@ with (shader_map[?shader_high_fog_apply])
 
 with (shader_map[?shader_high_light_apply])
 	new_shader_uniform("uAmbientColor")
-	
+
 with (shader_map[?shader_high_light_desaturate])
 {
 	new_shader_sampler("uShadowBuffer")
