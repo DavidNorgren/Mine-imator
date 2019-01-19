@@ -360,9 +360,10 @@ with (shader_map[?shader_noise])
 	new_shader_uniform("uScreenSize")
 }
 
-with (shader_map[?shader_high_ssr]){
-	new_shader_sampler("tPosition")
-	new_shader_sampler("tNormal")
+with (shader_map[?shader_high_ssr])
+{
+	new_shader_sampler("uDepthBuffer")
+	new_shader_sampler("uNormalBuffer")
 }
 
 return true
