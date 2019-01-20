@@ -474,7 +474,7 @@ if (true)
 	surface_set_target_ext(1, normalsurf)
 	{
 		draw_clear_alpha(c_white, 0)
-		render_world_start()
+		render_world_start(5000)
 		render_world(e_render_mode.HIGH_SSAO_DEPTH_NORMAL)
 		render_world_done()
 	}
@@ -493,8 +493,10 @@ if (true)
 		nextfinalpos = !nextfinalpos
 	}
 
+
 	surface_set_target(finalsurf)
     {
+		gpu_set_texrepeat(false)
         draw_clear_alpha(c_black, 0)
 
         render_shader_obj = shader_map[?shader_high_ssr]
@@ -506,6 +508,7 @@ if (true)
         draw_blank(0, 0, render_width, render_height)
         with (render_shader_obj)
             shader_clear()
+		gpu_set_texrepeat(true)
 		
     }
     surface_reset_target()
