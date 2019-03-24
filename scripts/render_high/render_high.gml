@@ -474,7 +474,7 @@ if (true)
 	surface_set_target_ext(1, normalsurf)
 	{
 		draw_clear_alpha(c_white, 0)
-		render_world_start(5000)
+		render_world_start(1024)
 		render_world(e_render_mode.HIGH_SSAO_DEPTH_NORMAL)
 		render_world_done()
 	}
@@ -493,7 +493,6 @@ if (true)
 		nextfinalpos = !nextfinalpos
 	}
 
-
 	surface_set_target(finalsurf)
     {
 		gpu_set_texrepeat(false)
@@ -503,12 +502,18 @@ if (true)
         with (render_shader_obj)
         {
             shader_set(shader)
-            shader_high_ssr_set(prevsurf, depthsurf, normalsurf, proj_matrix)
+            shader_high_ssr_set(prevsurf, depthsurf, normalsurf)
         }
         draw_blank(0, 0, render_width, render_height)
         with (render_shader_obj)
             shader_clear()
 		gpu_set_texrepeat(true)
+		
+		if (keyboard_check(ord("Y")))
+			draw_surface(normalsurf, 0, 0)
+			
+		if (keyboard_check(ord("U")))
+			draw_surface(depthsurf, 0, 0)
 		
     }
     surface_reset_target()
