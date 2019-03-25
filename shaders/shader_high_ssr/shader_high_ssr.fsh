@@ -14,7 +14,6 @@ uniform float uFar;
 varying vec2 vTexCoord;
 
 const int maxf = 6;				// Max number of refinements
-const float stp = 1.2;			// Size of one step in ray marching
 const float ref = 0.07;			// Refinement multiplier
 const float inc = 2.2;			// Increasement factor for each ray step
 
@@ -44,7 +43,7 @@ vec3 CalcViewPositionFromDepth(in vec2 TexCoord)
     vec3 rawPosition                = vec3(TexCoord, getDepth(TexCoord));
 	
     // Convert from (0, 1) range to (-1, 1)
-    vec4 ScreenSpacePosition        = vec4(rawPosition.xyz * 2.0 - 1.0, 1.0);
+	vec4 ScreenSpacePosition        = vec4(rawPosition.xyz * 2.0 - 1.0, 1.0);
 	
     // Undo Perspective transformation to bring into view space
     vec4 ViewPosition               = uProjMatrixInv * ScreenSpacePosition;
@@ -53,13 +52,12 @@ vec3 CalcViewPositionFromDepth(in vec2 TexCoord)
     return                          ViewPosition.xyz / ViewPosition.w;
 }
 
-vec2 RayCast(vec3 dir, inout vec3 startPos)
+vec2 RayCast(vec3 reflectDir, inout vec3 startPos)
 {	
-	vec3 stepVector = dir;
+	vec3 stepVector = reflectDir;
 	vec3 tVector = stepVector;
 	
 	vec3 curCoord = startPos + stepVector;
-	vec3 prevCoord = curCoord;
 	
 	int refinements = 0;
 	
@@ -73,7 +71,7 @@ vec2 RayCast(vec3 dir, inout vec3 startPos)
 		
         vec3 screenPos = CalcViewPositionFromDepth(projPos.xy);
 		
-		float err = distance(startPos, screenPos);
+		float err = distance(curCoord, screenPos);
 		
 		if (err < pow(length(stepVector) * 1.85, 1.15))
 		{
@@ -87,7 +85,6 @@ vec2 RayCast(vec3 dir, inout vec3 startPos)
 		}
 		
 		stepVector *= inc;
-		prevCoord = curCoord;
 		tVector += stepVector;
 		curCoord = startPos + tVector;
     }
@@ -105,10 +102,7 @@ void main()
 	
 	vec3 startPos = viewPos;
 	
-	vec3 dir;
-	dir = reflected;
-	
-	vec2 coords = RayCast(dir, startPos);
+	vec2 coords = RayCast(reflected, startPos);
 	
 	vec4 ssr = texture2D(uColorBuffer, vTexCoord);
 	
