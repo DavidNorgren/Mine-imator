@@ -13,9 +13,9 @@ uniform float uFar;
 
 varying vec2 vTexCoord;
 
-const int maxf = 6;				// Max number of refinements
-const float ref = 0.07;			// Refinement multiplier
-const float inc = 2.2;			// Increasement factor for each ray step
+const int maxf = 4;				// Max number of refinements
+const float ref = 0.25;			// Refinement multiplier
+const float inc = 2.0;		// Increasement factor for each ray step
 
 float unpackDepth(vec4 c)
 {
@@ -34,27 +34,18 @@ float transformDepth(float depth)
 }
 
 float getDepth(vec2 coords) {
-	return transformDepth(unpackDepth(texture2D(uDepthBuffer, coords)));
+	return unpackDepth(texture2D(uDepthBuffer, coords));
 }
 
-vec3 CalcViewPositionFromDepth(in vec2 TexCoord)
+vec3 posFromBuffer(vec2 coord, float depth)
 {
-    // Combine UV & depth into XY & Z (NDC)
-    vec3 rawPosition                = vec3(TexCoord, getDepth(TexCoord));
-	
-    // Convert from (0, 1) range to (-1, 1)
-	vec4 ScreenSpacePosition        = vec4(rawPosition.xyz * 2.0 - 1.0, 1.0);
-	
-    // Undo Perspective transformation to bring into view space
-    vec4 ViewPosition               = uProjMatrixInv * ScreenSpacePosition;
-
-    // Perform perspective divide and return
-    return                          ViewPosition.xyz / ViewPosition.w;
+	vec4 pos = uProjMatrixInv * vec4(coord.x * 2.0 - 1.0, 1.0 - coord.y * 2.0, transformDepth(depth), 1.0);
+	return pos.xyz / pos.w;
 }
 
-vec2 RayCast(vec3 reflectDir, inout vec3 startPos)
+vec2 RayCast(vec3 reflectDir, vec3 startPos)
 {	
-	vec3 stepVector = reflectDir;
+	vec3 stepVector = reflectDir * (1.2 - 0.5);
 	vec3 tVector = stepVector;
 	
 	vec3 curCoord = startPos + stepVector;
@@ -63,22 +54,20 @@ vec2 RayCast(vec3 reflectDir, inout vec3 startPos)
 	
     for (int i = 0; i < 25; i++) {
 		vec4 projPos = uProjMatrix * vec4(curCoord, 1.0);
-        projPos.xyz /= projPos.w;
-        projPos.xyz = projPos.xyz * 0.5 + 0.5;
+        vec2 projCoord = (projPos.xy / projPos.w) * 0.5 + 0.5;
+		projCoord.y = 1.0 - projCoord.y;
 		
-		if (projPos.x < 0.0 || projPos.x > 1.0 || projPos.y < 0.0 || projPos.y > 1.0 || projPos.z < 0.0 || projPos.z > 1.0)
+		if (projCoord.x < 0.0 || projCoord.x > 1.0 || projCoord.y < 0.0 || projCoord.y > 1.0)
 			break;
 		
-        vec3 screenPos = CalcViewPositionFromDepth(projPos.xy);
+        vec3 screenPos = posFromBuffer(projCoord, getDepth(projCoord));
 		
-		float err = distance(curCoord, screenPos);
-		
-		if (err < pow(length(stepVector) * 1.85, 1.15))
+		if (screenPos.z <= curCoord.z)
 		{
 			refinements++;
 			
 			if (refinements >= maxf)
-				return projPos.xy;
+				return projCoord;
 			
 			tVector -= stepVector;
             stepVector *= ref;
@@ -89,25 +78,32 @@ vec2 RayCast(vec3 reflectDir, inout vec3 startPos)
 		curCoord = startPos + tVector;
     }
 	
-    return vec2(-1.0);
+	return vec2(-1.0);
+}
+
+float cdist(vec2 coord) {
+	return clamp(1.0 - max(abs(coord.x - 0.5), abs(coord.y - 0.5)) * 2.0, 0.0, 1.0);
 }
 
 void main()
 {
 	vec3 viewNormal = unpackNormal(texture2D(uNormalBuffer, vTexCoord));
-	viewNormal.z = -viewNormal.z;
 	
-	vec3 viewPos = CalcViewPositionFromDepth(vTexCoord);
+	vec3 viewPos = posFromBuffer(vTexCoord, getDepth(vTexCoord));
 	vec3 reflected = normalize(reflect(viewPos, viewNormal));
 	
 	vec3 startPos = viewPos;
 	
-	vec2 coords = RayCast(reflected, startPos);
-	
 	vec4 ssr = texture2D(uColorBuffer, vTexCoord);
 	
-	if (coords.x > -1.0)
-		ssr = (ssr + texture2D(uColorBuffer, coords.xy)) * 0.5;
+	if (texture2D(uNormalBuffer, vTexCoord).a > 0.0)
+	{
+		vec2 coords = RayCast(reflected, startPos);
+	
+		if (coords.x > -1.0)
+			ssr.rgb = mix(ssr.rgb, texture2D(uColorBuffer, coords.xy).rgb, cdist(coords.xy));
+			//ssr = (ssr + texture2D(uColorBuffer, coords.xy)) * 0.5;
+	}
 	
 	gl_FragColor = ssr;// *0.0001 + vec4(reflected, 1.0);
 }
