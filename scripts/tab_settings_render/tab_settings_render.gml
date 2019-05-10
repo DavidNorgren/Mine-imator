@@ -145,6 +145,11 @@ if (setting_render_aa && checkbox_expand_settings_aa)
 	checkbox_expand_end()
 }
 
+// SSR
+tab_control_checkbox()
+draw_checkbox("ssr", dx, dy, setting_render_ssr, action_setting_render_ssr)
+tab_next()
+
 // Watermark
 if (trial_version)
 {

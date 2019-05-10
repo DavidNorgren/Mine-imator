@@ -369,6 +369,7 @@ with (shader_map[?shader_high_ssr])
 	new_shader_uniform("uFar")
 	new_shader_uniform("uProjMatrix")
 	new_shader_uniform("uProjMatrixInv")
+	new_shader_uniform("uViewMatrixInv")
 }
 
 return true

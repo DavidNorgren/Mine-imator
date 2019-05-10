@@ -86,9 +86,9 @@
 
 // Textures
 #macro block_sheet_width			32
-#macro block_sheet_height			16
+#macro block_sheet_height			32
 #macro block_sheet_ani_width		32
-#macro block_sheet_ani_height		1
+#macro block_sheet_ani_height		2
 #macro block_sheet_ani_frames		64
 #macro item_sheet_width				32
 #macro item_sheet_height			16

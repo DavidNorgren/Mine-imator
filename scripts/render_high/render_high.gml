@@ -461,7 +461,7 @@ if (render_camera_bloom || render_camera_dof || setting_render_glow || setting_r
 #endregion
 
 #region SSR
-if (true)
+if (setting_render_ssr)
 {
 	var prevsurf, depthsurf, normalsurf;
 	prevsurf = finalsurf
@@ -474,7 +474,7 @@ if (true)
 	surface_set_target_ext(1, normalsurf)
 	{
 		draw_clear_alpha(c_white, 0)
-		render_world_start()
+		render_world_start(5000)
 		render_world(e_render_mode.HIGH_SSAO_DEPTH_NORMAL)
 		render_world_done()
 	}

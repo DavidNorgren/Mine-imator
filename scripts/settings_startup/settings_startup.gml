@@ -191,6 +191,8 @@ setting_render_watermark_anchor_y = "bottom"
 setting_render_watermark_scale = 1
 setting_render_watermark_alpha = 1
 
+setting_render_ssr = true
+
 setting_export_movie_format = "mp4"
 setting_export_movie_frame_rate = 30
 setting_export_movie_bit_rate = 2500000
