@@ -365,11 +365,15 @@ with (shader_map[?shader_high_ssr])
 	new_shader_sampler("uColorBuffer")
 	new_shader_sampler("uDepthBuffer")
 	new_shader_sampler("uNormalBuffer")
+	new_shader_sampler("uNoiseBuffer")
 	new_shader_uniform("uNear")
 	new_shader_uniform("uFar")
 	new_shader_uniform("uProjMatrix")
 	new_shader_uniform("uProjMatrixInv")
 	new_shader_uniform("uViewMatrixInv")
+	new_shader_uniform("uKernel")
+	new_shader_uniform("uScreenSize")
+	new_shader_uniform("uBlurStrength")
 }
 
 return true
