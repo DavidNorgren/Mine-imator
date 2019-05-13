@@ -53,6 +53,7 @@ render_surface[1] = null
 render_surface[2] = null
 render_surface[3] = null
 render_surface[4] = null
+render_surface[5] = null
 
 // Shadows
 globalvar render_shadowless_point_list, render_shadowless_point_data, render_shadowless_point_amount, render_surface_sun_buffer,

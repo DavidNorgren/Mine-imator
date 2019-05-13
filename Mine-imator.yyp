@@ -2671,6 +2671,14 @@
             }
         },
         {
+            "Key": "2c5e62b0-5b15-49c1-be40-250af0a09898",
+            "Value": {
+                "id": "6ee39882-0eaf-482e-9640-41fc8aceb06b",
+                "resourcePath": "shaders\\shader_high_ssr_apply\\shader_high_ssr_apply.yy",
+                "resourceType": "GMShader"
+            }
+        },
+        {
             "Key": "2c70fcc8-6fe5-4cac-ac3c-f346129a5714",
             "Value": {
                 "id": "5d39f22c-c339-44bc-8412-a56faffe7419",
@@ -5547,6 +5555,14 @@
             "Value": {
                 "id": "c8798c6f-910d-4290-9a17-35ccd7ae5b51",
                 "resourcePath": "scripts\\project_load_legacy_values\\project_load_legacy_values.yy",
+                "resourceType": "GMScript"
+            }
+        },
+        {
+            "Key": "5d98aa66-cb86-4e17-b5c8-9ece8d9881f1",
+            "Value": {
+                "id": "147b28c6-b470-47f0-ba1f-9d8897c6bc4d",
+                "resourcePath": "scripts\\shader_high_ssr_blur_set\\shader_high_ssr_blur_set.yy",
                 "resourceType": "GMScript"
             }
         },
@@ -9411,6 +9427,14 @@
             "Value": {
                 "id": "e816a5a1-f194-4c93-8d0c-c46eca5cd5df",
                 "resourcePath": "scripts\\builder_done\\builder_done.yy",
+                "resourceType": "GMScript"
+            }
+        },
+        {
+            "Key": "9bdaed05-3ff4-4caf-994d-58a62c43b759",
+            "Value": {
+                "id": "05989944-025d-4f69-8160-279fc792d0af",
+                "resourcePath": "scripts\\shader_high_ssr_color_set\\shader_high_ssr_color_set.yy",
                 "resourceType": "GMScript"
             }
         },
@@ -15623,6 +15647,14 @@
             }
         },
         {
+            "Key": "fe389a68-1cfb-4862-b174-8f53ad7d90e7",
+            "Value": {
+                "id": "75f9a47e-8b85-4727-95ce-73bf2b226e53",
+                "resourcePath": "scripts\\shader_high_ssr_apply_set\\shader_high_ssr_apply_set.yy",
+                "resourceType": "GMScript"
+            }
+        },
+        {
             "Key": "fe9137c3-02bf-444c-aef6-0ea162f74cc1",
             "Value": {
                 "id": "0799f00b-2c17-469b-b627-3cac0d6891f8",
@@ -16808,6 +16840,9 @@
         "03c7002f-4a83-4cd1-8128-3873f253b371",
         "91f7487c-7f3a-4306-a95d-ccf7e047e98b",
         "0105bdd5-65b8-4099-b479-8ca98c880d5f",
+        "9bdaed05-3ff4-4caf-994d-58a62c43b759",
+        "fe389a68-1cfb-4862-b174-8f53ad7d90e7",
+        "5d98aa66-cb86-4e17-b5c8-9ece8d9881f1",
         "0bb3f0f1-8cbd-46b7-b774-e82fb09e01ea",
         "9ff39a74-b1fc-4174-bd91-6f279795051a",
         "4768652a-a850-4af1-a949-139bd12b332c",

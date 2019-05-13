@@ -463,7 +463,7 @@ if (render_camera_bloom || render_camera_dof || setting_render_glow || setting_r
 #region SSR
 if (setting_render_ssr)
 {
-	var prevsurf, depthsurf, normalsurf;
+	var coordsurf, prevsurf, depthsurf, normalsurf;
 	prevsurf = finalsurf
 	
 	render_surface[2] = surface_require(render_surface[2], render_width, render_height) // Depth
@@ -480,6 +480,27 @@ if (setting_render_ssr)
 	}
 	surface_reset_target()
 	
+	// Calculate SSR coordinates
+	render_surface[4] = surface_require(render_surface[4], render_width, render_height)
+	coordsurf = render_surface[4]
+	surface_set_target(coordsurf)
+	{
+		gpu_set_texrepeat(false)
+        draw_clear_alpha(c_black, 0)
+
+        render_shader_obj = shader_map[?shader_high_ssr]
+        with (render_shader_obj)
+        {
+            shader_set(shader)
+            shader_high_ssr_set(depthsurf, normalsurf)
+        }
+        draw_blank(0, 0, render_width, render_height)
+        with (render_shader_obj)
+            shader_clear()
+		gpu_set_texrepeat(true)
+    }
+    surface_reset_target()
+	
 	// Render directly to target?(Let's pretend we're DOF for testing purposes)
 	if (!setting_render_glow && !setting_render_aa && !render_overlay && !render_camera_color_correction && !render_camera_grain && !render_camera_vignette)
 	{
@@ -492,32 +513,27 @@ if (setting_render_ssr)
 		finalsurf = render_surface[nextfinalpos]
 		nextfinalpos = !nextfinalpos
 	}
-
+	
 	surface_set_target(finalsurf)
     {
 		gpu_set_texrepeat(false)
         draw_clear_alpha(c_black, 0)
 
-        render_shader_obj = shader_map[?shader_high_ssr]
+        render_shader_obj = shader_map[?shader_high_ssr_apply]
         with (render_shader_obj)
         {
             shader_set(shader)
-            shader_high_ssr_set(prevsurf, depthsurf, normalsurf)
+            shader_high_ssr_apply_set(coordsurf, prevsurf, depthsurf, normalsurf)
         }
         draw_blank(0, 0, render_width, render_height)
+		
         with (render_shader_obj)
             shader_clear()
-		gpu_set_texrepeat(true)
 		
-		if (keyboard_check(ord("Y")))
-			draw_surface(normalsurf, 0, 0)
-			
-		if (keyboard_check(ord("U")))
-			draw_surface(depthsurf, 0, 0)
-		
+		gpu_set_texrepeat(true)	
     }
     surface_reset_target()
-
+	
 }
 #endregion
 

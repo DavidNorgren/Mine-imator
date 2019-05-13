@@ -52,6 +52,7 @@ if (!err)
 	new_shader("shader_noise")
 	new_shader("shader_high_light_desaturate")
 	new_shader("shader_high_ssr")
+	new_shader("shader_high_ssr_apply")
 
 	shader_texture_surface = false
 	shader_texture_filter_linear = false
@@ -362,18 +363,26 @@ with (shader_map[?shader_noise])
 
 with (shader_map[?shader_high_ssr])
 {
-	new_shader_sampler("uColorBuffer")
 	new_shader_sampler("uDepthBuffer")
 	new_shader_sampler("uNormalBuffer")
-	new_shader_sampler("uNoiseBuffer")
 	new_shader_uniform("uNear")
 	new_shader_uniform("uFar")
 	new_shader_uniform("uProjMatrix")
 	new_shader_uniform("uProjMatrixInv")
-	new_shader_uniform("uViewMatrixInv")
-	new_shader_uniform("uKernel")
+}
+
+with (shader_map[?shader_high_ssr_apply])
+{
+	new_shader_sampler("uHitBuffer")
+	new_shader_sampler("uColorBuffer")
+	new_shader_sampler("uDepthBuffer")
+	new_shader_sampler("uNormalBuffer")
+	new_shader_uniform("uNear")
+	new_shader_uniform("uFar")
+	new_shader_uniform("uProjMatrix")
+	new_shader_uniform("uProjMatrixInv")
+	new_shader_uniform("uRoughness")
 	new_shader_uniform("uScreenSize")
-	new_shader_uniform("uBlurStrength")
 }
 
 return true
