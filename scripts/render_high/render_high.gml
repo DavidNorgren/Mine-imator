@@ -5,8 +5,6 @@ var starttime;
 var ssaosurf, shadowsurf, fogsurf, finalsurf, nextfinalpos;
 nextfinalpos = 0
 
-
-
 starttime = current_time
 render_surface_time = 0
 
@@ -494,7 +492,9 @@ if (setting_render_ssr)
             shader_set(shader)
             shader_high_ssr_set(depthsurf, normalsurf)
         }
-        draw_blank(0, 0, render_width, render_height)
+		
+        //draw_blank(0, 0, render_width, render_height)
+		draw_surface_exists(prevsurf, 0, 0)
         with (render_shader_obj)
             shader_clear()
 		gpu_set_texrepeat(true)
@@ -518,7 +518,7 @@ if (setting_render_ssr)
     {
 		gpu_set_texrepeat(false)
         draw_clear_alpha(c_black, 0)
-
+		/*
         render_shader_obj = shader_map[?shader_high_ssr_apply]
         with (render_shader_obj)
         {
@@ -529,8 +529,10 @@ if (setting_render_ssr)
 		
         with (render_shader_obj)
             shader_clear()
-		
+		*/
+		draw_surface_exists(coordsurf, 0, 0)
 		gpu_set_texrepeat(true)	
+		
     }
     surface_reset_target()
 	

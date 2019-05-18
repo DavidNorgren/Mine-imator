@@ -574,6 +574,14 @@ with (settings)
 		tbx_shadows_blur_quality = new_textbox_integer()
 		tbx_shadows_blur_size = new_textbox_integer()
 		tbx_shadows_blur_size.suffix = "%"
+		
+		tbx_ssr_step_size = new_textbox_decimals()
+		tbx_ssr_step_amount = new_textbox_integer()
+		tbx_ssr_step_refine_amount = new_textbox_decimals()
+		tbx_ssr_step_refine_depth = new_textbox_decimals()
+		tbx_ssr_metallic = new_textbox_integer()
+		tbx_ssr_specular = new_textbox_integer()
+		
 		tbx_glow_radius = new_textbox_integer()
 		tbx_glow_radius.suffix = "%"
 		tbx_glow_intensity = new_textbox_integer()

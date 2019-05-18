@@ -192,6 +192,12 @@ setting_render_watermark_scale = 1
 setting_render_watermark_alpha = 1
 
 setting_render_ssr = true
+setting_render_ssr_step_size = 2
+setting_render_ssr_step_amount = 140
+setting_render_ssr_refine_amount = 25
+setting_render_ssr_refine_depth = 4
+setting_render_ssr_metallic = 1
+setting_render_ssr_specular = 1
 
 setting_export_movie_format = "mp4"
 setting_export_movie_frame_rate = 30
@@ -230,7 +236,7 @@ checkbox_expand_frameeditor_clrcor = true
 checkbox_expand_frameeditor_vignette = true
 checkbox_expand_frameeditor_grain = true
 checkbox_expand_setting_cubist_ao = true
-
+checkbox_expand_settings_ssr = true
 
 settings_load()
 

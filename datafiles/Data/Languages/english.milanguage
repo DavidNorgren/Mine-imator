@@ -2834,7 +2834,6 @@
         "render": "Render",
         "rendertip": "Change program settings about high quality rendering.",
         "render/": {
-
             "cameraeffects": "Camera effects",
             "cameraeffectstip": "Enable camera effects in rendered images. (DOF, bloom, color correction and vignette)",
             "ssao": "SSAO",
@@ -2883,6 +2882,20 @@
                 "falloffintensity": "Falloff intensity",
                 "falloffintensitytip": "The falloff intensity of the glow effect."
             },
+			"ssr": "Screen space reflections",
+			"ssrtip": "Enable reflections from objects that are on sceen.",
+			"ssr/": {
+				"stepsize": "Step size",
+				"stepsizetip": "How much a ray should move when ray marching.",
+				"stepamount": "Step amount",
+				"stepamounttip": "The amount of steps a ray should take when ray marching",
+				"refineamount": "Refine amount",
+				"refineamounttip": "How many times a ray's last step should be refined for better accuracy.",
+				"refinedepth": "Refine depth",
+				"refinedepthtip": "The skipped depth amount to start refining.",
+				"metallic": "Metallic",
+				"specular": "Specular"
+			},
             "aa": "AA",
             "aatip": "Enable AA (Anti Aliasing) in rendered images to get rid of sharp edges.",
             "aapower": "AA power",

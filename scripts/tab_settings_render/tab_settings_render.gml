@@ -5,42 +5,6 @@ tab_control_checkbox()
 draw_checkbox("settingsrendercameraeffects", dx, dy, setting_render_camera_effects, action_setting_render_camera_effects)
 tab_next()
 
-// SSAO
-tab_control_checkbox_expand()
-draw_checkbox_expand("settingsrenderssao", dx, dy, setting_render_ssao, action_setting_render_ssao, checkbox_expand_settings_ssao, action_checkbox_expand_settings_ssao)
-tab_next()
-
-if (setting_render_ssao && checkbox_expand_settings_ssao)
-{
-	dx += 4
-	dw -= 4
-	
-	var capwid = text_caption_width("settingsrenderssaoradius", "settingsrenderssaopower", "settingsrenderssaoblurpasses")
-	
-	tab_control_dragger()
-	draw_dragger("settingsrenderssaoradius", dx, dy, dw, setting_render_ssao_radius, setting_render_ssao_radius / 200, 0, 256, 12, 0, tab.render.tbx_ssao_radius, action_setting_render_ssao_radius, capwid)
-	tab_next()
-	
-	tab_control_meter()
-	draw_meter("settingsrenderssaopower", dx, dy, dw, round(setting_render_ssao_power * 100), 50, 0, 500, 100, 1, tab.render.tbx_ssao_power, action_setting_render_ssao_power, capwid)
-	tab_next()
-	
-	tab_control_meter()
-	draw_meter("settingsrenderssaoblurpasses", dx, dy, dw, setting_render_ssao_blur_passes, 50, 0, 8, 2, 1, tab.render.tbx_ssao_blur_passes, action_setting_render_ssao_blur_passes, capwid)
-	tab_next()
-	
-	tab_control_color()
-	draw_button_color("settingsrenderssaocolor", dx, dy, dw, setting_render_ssao_color, c_black, false, action_setting_render_ssao_color)
-	tab_next()
-	dy += 10
-	
-	dx -= 4
-	dw += 4
-	checkbox_expand_end()
-}
-
-
-
 // Shadows
 tab_control_checkbox_expand()
 draw_checkbox_expand("settingsrendershadows", dx, dy, setting_render_shadows, action_setting_render_shadows, checkbox_expand_settings_shadows, action_checkbox_expand_settings_shadows)
@@ -80,6 +44,82 @@ if (setting_render_shadows && checkbox_expand_settings_shadows)
 	dx -= 4
 	dw += 4
 	checkbox_expand_end()
+}
+
+// SSAO
+tab_control_checkbox_expand()
+draw_checkbox_expand("settingsrenderssao", dx, dy, setting_render_ssao, action_setting_render_ssao, checkbox_expand_settings_ssao, action_checkbox_expand_settings_ssao)
+tab_next()
+
+if (setting_render_ssao && checkbox_expand_settings_ssao)
+{
+	dx += 4
+	dw -= 4
+	
+	var capwid = text_caption_width("settingsrenderssaoradius", "settingsrenderssaopower", "settingsrenderssaoblurpasses")
+	
+	tab_control_dragger()
+	draw_dragger("settingsrenderssaoradius", dx, dy, dw, setting_render_ssao_radius, setting_render_ssao_radius / 200, 0, 256, 12, 0, tab.render.tbx_ssao_radius, action_setting_render_ssao_radius, capwid)
+	tab_next()
+	
+	tab_control_meter()
+	draw_meter("settingsrenderssaopower", dx, dy, dw, round(setting_render_ssao_power * 100), 50, 0, 500, 100, 1, tab.render.tbx_ssao_power, action_setting_render_ssao_power, capwid)
+	tab_next()
+	
+	tab_control_meter()
+	draw_meter("settingsrenderssaoblurpasses", dx, dy, dw, setting_render_ssao_blur_passes, 50, 0, 8, 2, 1, tab.render.tbx_ssao_blur_passes, action_setting_render_ssao_blur_passes, capwid)
+	tab_next()
+	
+	tab_control_color()
+	draw_button_color("settingsrenderssaocolor", dx, dy, dw, setting_render_ssao_color, c_black, false, action_setting_render_ssao_color)
+	tab_next()
+	dy += 10
+	
+	dx -= 4
+	dw += 4
+	checkbox_expand_end()
+}
+
+// SSR
+tab_control_checkbox_expand()
+draw_checkbox_expand("settingsrenderssr", dx, dy, setting_render_ssr, action_setting_render_ssr, checkbox_expand_settings_ssr, action_checkbox_expand_settings_ssr)
+tab_next()
+
+if (setting_render_ssr && checkbox_expand_settings_ssr)
+{
+	dx += 4
+	dw -= 4
+	
+	var capwid = text_caption_width("settingsrenderssrstepsize",
+	"settingsrenderssrstepamount",
+	"settingsrenderssrrefineamount",
+	"settingsrenderssrrefinedepth",
+	"settingsrenderssrrefinemetallic",
+	"settingsrenderssrrefinespecular")
+	
+	tab_control_meter()
+	draw_meter("settingsrenderssrstepsize", dx, dy, dw, setting_render_ssr_step_size, 50, 1, 50, 2, 0.01, tab.render.tbx_ssr_step_size, action_setting_render_ssr_step_size, capwid)
+	tab_next()
+	
+	tab_control_meter()
+	draw_meter("settingsrenderssrstepamount", dx, dy, dw, setting_render_ssr_step_amount, 50, 1, 200, 140, 1, tab.render.tbx_ssr_step_amount, action_setting_render_ssr_step_amount, capwid)
+	tab_next()
+	
+	tab_control_meter()
+	draw_meter("settingsrenderssrrefineamount", dx, dy, dw, setting_render_ssr_refine_amount, 50, 0, 30, 100, 1, tab.render.tbx_ssr_step_refine_amount, action_setting_render_ssr_refine_amount, capwid)
+	tab_next()
+	
+	tab_control_meter()
+	draw_meter("settingsrenderssrrefinedepth", dx, dy, dw, setting_render_ssr_refine_depth, 50, 0, 100, 4, 0.01, tab.render.tbx_ssr_step_refine_depth, action_setting_render_ssr_refine_depth, capwid)
+	tab_next()
+	
+	tab_control_meter()
+	draw_meter("settingsrenderssrmetallic", dx, dy, dw, round(setting_render_ssr_metallic * 100), 50, 0, 100, 100, 1, tab.render.tbx_ssr_metallic, action_setting_render_ssr_metallic, capwid)
+	tab_next()
+	
+	tab_control_meter()
+	draw_meter("settingsrenderssrspecular", dx, dy, dw, round(setting_render_ssr_specular * 100), 50, 0, 100, 100, 1, tab.render.tbx_ssr_specular, action_setting_render_ssr_specular, capwid)
+	tab_next()
 }
 
 // Glow
@@ -145,11 +185,6 @@ if (setting_render_aa && checkbox_expand_settings_aa)
 	checkbox_expand_end()
 }
 
-// SSR
-tab_control_checkbox()
-draw_checkbox("ssr", dx, dy, setting_render_ssr, action_setting_render_ssr)
-tab_next()
-
 // Watermark
 if (trial_version)
 {
@@ -161,7 +196,6 @@ else
 	tab_control_checkbox_expand()
 	draw_checkbox_expand("settingsrenderwatermark", dx, dy, setting_render_watermark, action_setting_render_watermark, checkbox_expand_settings_watermark, action_checkbox_expand_settings_watermark)
 }
-
 tab_next()
 
 if (setting_render_watermark)
