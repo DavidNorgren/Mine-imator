@@ -3,6 +3,7 @@
 
 uniform sampler2D uDepthBuffer;
 uniform sampler2D uNormalBuffer;
+uniform sampler2D uColorBuffer;
 
 uniform mat4 uProjMatrix;
 uniform mat4 uProjMatrixInv;
@@ -148,7 +149,7 @@ void main() {
 	float dDepth = -1.0;
 	vec3 reflected = normalize(reflect(hitPos, viewNormal));
 	
-	vec4 baseColor = texture2D(gm_BaseTexture, vTexCoord);
+	vec4 baseColor = texture2D(uColorBuffer, vTexCoord);
 	vec4 ssr = baseColor;
 	float brightness = (baseColor.r + baseColor.g + baseColor.b) / 3.0;
 	
@@ -178,7 +179,7 @@ void main() {
 	float refAmount = pow(uMetallic, specularFalloffExp) * screenEdgefactor * reflected.z;
 	
 	if (coords.x >= 0.0)
-		ssr.rgb = texture2D(gm_BaseTexture, coords).rgb;
+		ssr.rgb = texture2D(uColorBuffer, coords).rgb;
 	else
 		ssr.rgb = baseColor.rgb;
 	

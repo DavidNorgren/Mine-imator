@@ -365,6 +365,7 @@ with (shader_map[?shader_high_ssr])
 {
 	new_shader_sampler("uDepthBuffer")
 	new_shader_sampler("uNormalBuffer")
+	new_shader_sampler("uColorBuffer")
 	new_shader_uniform("uNear")
 	new_shader_uniform("uFar")
 	new_shader_uniform("uProjMatrix")

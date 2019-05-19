@@ -490,11 +490,11 @@ if (setting_render_ssr)
         with (render_shader_obj)
         {
             shader_set(shader)
-            shader_high_ssr_set(depthsurf, normalsurf)
+            shader_high_ssr_set(depthsurf, normalsurf, prevsurf)
         }
 		
-        //draw_blank(0, 0, render_width, render_height)
-		draw_surface_exists(prevsurf, 0, 0)
+        draw_blank(0, 0, render_width, render_height)
+		//draw_surface_exists(prevsurf, 0, 0)
         with (render_shader_obj)
             shader_clear()
 		gpu_set_texrepeat(true)
