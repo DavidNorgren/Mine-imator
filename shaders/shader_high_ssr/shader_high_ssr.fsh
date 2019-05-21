@@ -147,32 +147,33 @@ void main() {
 	
 	vec3 hitPos = viewPos;
 	float dDepth = -1.0;
-	vec3 reflected = normalize(reflect(hitPos, viewNormal));
 	
 	vec4 baseColor = texture2D(uColorBuffer, vTexCoord);
 	vec4 ssr = baseColor;
-	float brightness = (baseColor.r + baseColor.g + baseColor.b) / 3.0;
 	
 	// Fresnel
 	vec3 F0 = vec3(0.04);
     F0 = mix(F0, vec3(0.0), uMetallic);
     vec3 fresnel = fresnelSchlick(max(dot(normalize(viewNormal), normalize(viewPos)), 0.0), F0);
 	
+	vec3 wp = vec3(vec4(viewPos, 1.0) * uViewMatrixInv);
+	vec3 jitt = mix(vec3(0.0), (vec3(hash(wp)) - 0.5) * 2.0, mix(0.0, 0.20, uSpecular));
+	
+	// Reflect vector
+	vec3 reflected = normalize(reflect(hitPos, normalize(viewNormal + jitt)));
+	
 	// Only do reflections on visible surfaces
 	vec2 coords = vec2(-1.0);
 	
 	if (texture2D(uDepthBuffer, vTexCoord).a > 0.0 && uMetallic > 0.01) {
-		vec3 wp = vec3(vec4(viewPos, 1.0) * uViewMatrixInv);
-		vec3 jitt = mix(vec3(0.0), vec3(hash(wp)), uSpecular * brightness);
-		
-		coords = RayCast(jitt + reflected * max(1.0, -viewPos.z), hitPos, dDepth);	
+		coords = RayCast(reflected * max(1.0, -viewPos.z), hitPos, dDepth);	
 	
 		if (dDepth > 0.0)
 			coords = vec2(-1.0);
 	}
 	
 	// Calculate screen fade
-	vec2 dCoords = smoothstep(0.2, 0.6, abs(vec2(0.5, 0.5) - vTexCoord.xy));
+	vec2 dCoords = smoothstep(0.2, 0.6, abs(vec2(0.5, 0.5) - coords.xy));
 	float screenEdgefactor = clamp(1.0 - (dCoords.x + dCoords.y), 0.0, 1.0);
 	
 	// Reflection amount

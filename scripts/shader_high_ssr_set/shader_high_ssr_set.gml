@@ -7,8 +7,8 @@ texture_set_stage(sampler_map[?"uDepthBuffer"], surface_get_texture(argument0))
 texture_set_stage(sampler_map[?"uNormalBuffer"], surface_get_texture(argument1))
 texture_set_stage(sampler_map[?"uColorBuffer"], surface_get_texture(argument2))
 
-gpu_set_tex_mip_enable_ext(sampler_map[?"uColorBuffer"], mip_on)
-gpu_set_tex_mip_filter_ext(sampler_map[?"uColorBuffer"], tf_anisotropic)
+//gpu_set_tex_mip_enable_ext(sampler_map[?"uColorBuffer"], mip_on)
+//gpu_set_tex_mip_filter_ext(sampler_map[?"uColorBuffer"], tf_anisotropic)
 
 render_set_uniform("uNear", cam_near)
 render_set_uniform("uFar", cam_far)
