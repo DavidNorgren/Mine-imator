@@ -1,93 +1,124 @@
 #define MAXSTEPS 200
 #define MAXREFINESTEPS 30
 
+varying vec2 vTexCoord;
+
+// Buffers
 uniform sampler2D uDepthBuffer;
 uniform sampler2D uNormalBuffer;
 uniform sampler2D uColorBuffer;
 
+// Camera data
 uniform mat4 uProjMatrix;
 uniform mat4 uProjMatrixInv;
 uniform mat4 uViewMatrixInv;
-
-varying vec2 vTexCoord;
-
 uniform float uNear;
 uniform float uFar;
 
-uniform float uStepSize; // 2.0
-uniform int uStepAmount; // 140
-uniform int uRefineSteps; // 30
-uniform float uRefineDepthTest;
-uniform float uMetallic; // 1.0
-uniform float uSpecular;
+// Material data/settings
+uniform float uStepSize; // Default: 2.0
+uniform int uStepAmount; // Default: 140
+uniform int uRefineSteps; // Default: 30
+uniform float uRefineDepthTest; // Default 4.0
+uniform float uMetallic; // Default: 1.0
+uniform float uSpecular; // Default: 0.0
 const float specularFalloffExp = 3.0;
 
-vec4 packCoords(vec2 coords) {
-	return vec4(coords, 0.0, 1.0);
-	
-	vec2 maxcoords = coords * 255.0;
-	return vec4(floor(maxcoords * 255.0) / (255.0 * 255.0), fract(maxcoords * 255.0));
-}
-
-float unpackDepth(vec4 c) {
+// Unpacks depth value from packed color
+float unpackDepth(vec4 c)
+{
 	return c.r + c.g / 255.0 + c.b / (255.0 * 255.0);
 }
 
-vec3 unpackNormal(vec4 c) {
-    return c.rgb * 2.0 - 1.0;
-}
-
-float transformDepth(float depth) {
-    return (uFar - (uNear * uFar) / (depth * (uFar - uNear) + uNear)) / (uFar - uNear);
-}
-
-float getDepth(vec2 coords) {
+// Returns depth value from packed depth buffer
+float getDepth(vec2 coords)
+{
 	return unpackDepth(texture2D(uDepthBuffer, coords));
 }
 
-// Reconstruct a position from a screen space coordinate and (linear) depth
-vec3 posFromBuffer(vec2 coord, float depth) {
-    vec4 pos = uProjMatrixInv * vec4(coord.x * 2.0 - 1.0, 1.0 - coord.y * 2.0, transformDepth(depth), 1.0);
-    return pos.xyz / pos.w;
+// Transforms Z depth with camera data
+float transformDepth(float depth)
+{
+	return (uFar - (uNear * uFar) / (depth * (uFar - uNear) + uNear)) / (uFar - uNear);
 }
 
-vec2 BinarySearch(vec3 dir, inout vec3 hitCoord, out float dDepth) {
-    vec3 screenPos;
+// Reconstruct a position from a screen space coordinate and (linear) depth
+vec3 posFromBuffer(vec2 coord, float depth)
+{
+	vec4 pos = uProjMatrixInv * vec4(coord.x * 2.0 - 1.0, 1.0 - coord.y * 2.0, transformDepth(depth), 1.0);
+	return pos.xyz / pos.w;
+}
+
+// Unpacks normal from packed color
+vec3 unpackNormal(vec4 c)
+{
+	return c.rgb * 2.0 - 1.0;
+}
+
+// Returns normal from packed normal buffer
+vec3 getNormal(vec2 coords)
+{
+	return unpackNormal(texture2D(uNormalBuffer, coords));
+}
+
+// Fresnel Schlick approximation
+vec3 fresnelSchlick(float cosTheta, vec3 F0)
+{
+	return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+}
+
+// Hash scatter function
+vec3 hash(vec3 a)
+{
+	a = fract(a * vec3(.8));
+	a += dot(a, a.yxz + 19.19);
+	return fract((a.xxy + a.yxx) * a.zyx);
+}
+
+// Refines ray position if ray hits an object
+vec2 BinarySearch(vec3 dir, inout vec3 hitCoord, out float dDepth)
+{
+	vec3 screenPos;
 	int steps = 0;
 	
-    for (int i = 0; i < MAXREFINESTEPS; i++) {
-        vec4 projectedCoord = uProjMatrix * vec4(hitCoord, 1.0);
-        projectedCoord.xy /= projectedCoord.w;
-        projectedCoord.xy = projectedCoord.xy * 0.5 + 0.5;
+	// Refine coordinate
+	for (int i = 0; i < MAXREFINESTEPS; i++)
+	{
+		vec4 projectedCoord = uProjMatrix * vec4(hitCoord, 1.0);
+		projectedCoord.xy /= projectedCoord.w;
+		projectedCoord.xy = projectedCoord.xy * 0.5 + 0.5;
 		projectedCoord.y = 1.0 - projectedCoord.y;
 		
 		screenPos = posFromBuffer(projectedCoord.xy, getDepth(projectedCoord.xy));
 		
-        dDepth = screenPos.z - hitCoord.z;
+		dDepth = screenPos.z - hitCoord.z;
 		
 		dir *= 0.5;
-        if (dDepth > 0.0)
-            hitCoord += dir;
+		if (dDepth > 0.0)
+			hitCoord += dir;
 		else
 			hitCoord -= dir;
 		
 		steps++;
 		
+		// Break loop if steps reach max
 		if (steps > uRefineSteps)
 			break;
-    }
+	}
 	
-    vec4 projectedCoord = uProjMatrix * vec4(hitCoord, 1.0);
-    projectedCoord.xy /= projectedCoord.w;
-    projectedCoord.xy = projectedCoord.xy * 0.5 + 0.5;
+	vec4 projectedCoord = uProjMatrix * vec4(hitCoord, 1.0);
+	projectedCoord.xy /= projectedCoord.w;
+	projectedCoord.xy = projectedCoord.xy * 0.5 + 0.5;
 	projectedCoord.y = 1.0 - projectedCoord.y;
 	
 	dDepth = 0.0;
-    return vec2(projectedCoord.xy);
+	return vec2(projectedCoord.xy);
 }
 
-vec2 RayCast(vec3 dir, inout vec3 hitCoord, out float dDepth) {
-    dir *= uStepSize;
+// Casts ray from camera for n amount of steps given a step amount and direction
+vec2 RayCast(vec3 dir, inout vec3 hitCoord, out float dDepth)
+{
+	dir *= uStepSize;
 	
 	vec3 startPos = hitCoord;
 	vec3 screenPos = vec3(hitCoord);
@@ -95,11 +126,12 @@ vec2 RayCast(vec3 dir, inout vec3 hitCoord, out float dDepth) {
 	vec4 projectedCoord;
 	vec2 screenCoord = vec2(1.0);
 	
-    for (int i = 0; i < MAXSTEPS; i++) {
-        hitCoord += dir;
+	for (int i = 0; i < MAXSTEPS; i++)
+	{
+		hitCoord += dir;
 
-        projectedCoord = uProjMatrix * vec4(hitCoord, 1.0);
-        screenCoord = (projectedCoord.xy / projectedCoord.w) * 0.5 + 0.5;
+		projectedCoord = uProjMatrix * vec4(hitCoord, 1.0);
+		screenCoord = (projectedCoord.xy / projectedCoord.w) * 0.5 + 0.5;
 		screenCoord.y = 1.0 - screenCoord.y;
 		
 		screenPos = posFromBuffer(screenCoord, getDepth(screenCoord));
@@ -107,41 +139,32 @@ vec2 RayCast(vec3 dir, inout vec3 hitCoord, out float dDepth) {
 		if (screenCoord.x < 0.0 || screenCoord.x > 1.0 || screenCoord.y < 0.0 || screenCoord.y > 1.0)
 			break;
 		
-        dDepth = screenPos.z - hitCoord.z;
+		dDepth = screenPos.z - hitCoord.z;
 		
-		if (startPos.z < screenPos.z) {
+		if (startPos.z < screenPos.z)
+		{
 			if (dDepth <= 0.0 && dDepth > -uRefineDepthTest)
 				return BinarySearch(dir, hitCoord, dDepth);
 		}
 		
-		if (steps > uStepAmount) {
+		// Break loop if steps reach max
+		if (steps > uStepAmount)
+		{
 			dDepth = 1.0;
 			break;
 		}
 		
 		steps++;
-    }
+	}
 	
 	dDepth = 1.0;
-    return screenCoord;
+	return screenCoord;
 }
 
-vec3 fresnelSchlick(float cosTheta, vec3 F0) {
-    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
-}
-
-#define Scale vec3(.8)
-#define K 19.19
-vec3 hash(vec3 a)
+void main()
 {
-    a = fract(a * Scale);
-    a += dot(a, a.yxz + K);
-    return fract((a.xxy + a.yxx) * a.zyx);
-}
-
-void main() {
 	float depth = getDepth(vTexCoord);
-	vec3 viewNormal = normalize(unpackNormal(texture2D(uNormalBuffer, vTexCoord)));
+	vec3 viewNormal = normalize(getNormal(vTexCoord));
 	
 	vec3 viewPos = posFromBuffer(vTexCoord, depth);
 	
@@ -153,8 +176,8 @@ void main() {
 	
 	// Fresnel
 	vec3 F0 = vec3(0.04);
-    F0 = mix(F0, vec3(0.0), uMetallic);
-    vec3 fresnel = fresnelSchlick(max(dot(normalize(viewNormal), normalize(viewPos)), 0.0), F0);
+	F0 = mix(F0, vec3(0.0), uMetallic);
+	vec3 fresnel = fresnelSchlick(max(dot(normalize(viewNormal), normalize(viewPos)), 0.0), F0);
 	
 	vec3 wp = vec3(vec4(viewPos, 1.0) * uViewMatrixInv);
 	vec3 jitt = mix(vec3(0.0), (vec3(hash(wp)) - 0.5) * 2.0, mix(0.0, 0.20, uSpecular));
@@ -165,7 +188,8 @@ void main() {
 	// Only do reflections on visible surfaces
 	vec2 coords = vec2(-1.0);
 	
-	if (texture2D(uDepthBuffer, vTexCoord).a > 0.0 && uMetallic > 0.01) {
+	if (texture2D(uDepthBuffer, vTexCoord).a > 0.0 && uMetallic > 0.01)
+	{
 		coords = RayCast(reflected * max(1.0, -viewPos.z), hitPos, dDepth);	
 	
 		if (dDepth > 0.0)
