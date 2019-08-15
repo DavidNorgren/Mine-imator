@@ -1,5 +1,6 @@
-#define MAXSTEPS 200
+#define MAXSTEPS 500
 #define MAXREFINESTEPS 30
+#define SAMPLES 6
 
 varying vec2 vTexCoord;
 
@@ -21,7 +22,7 @@ uniform int uStepAmount; // Default: 140
 uniform int uRefineSteps; // Default: 30
 uniform float uRefineDepthTest; // Default 4.0
 uniform float uMetallic; // Default: 1.0
-uniform float uSpecular; // Default: 0.0
+uniform float uRoughness; // Default: 0.0
 const float specularFalloffExp = 3.0;
 
 // Unpacks depth value from packed color
@@ -180,36 +181,53 @@ void main()
 	vec3 fresnel = fresnelSchlick(max(dot(normalize(viewNormal), normalize(viewPos)), 0.0), F0);
 	
 	vec3 wp = vec3(vec4(viewPos, 1.0) * uViewMatrixInv);
-	vec3 jitt = mix(vec3(0.0), (vec3(hash(wp)) - 0.5) * 2.0, mix(0.0, 0.20, uSpecular));
 	
-	// Reflect vector
-	vec3 reflected = normalize(reflect(hitPos, normalize(viewNormal + jitt)));
+	// Direct reflect vector
+	vec3 refDir = normalize(reflect(hitPos, normalize(viewNormal)));
+	vec2 coordsDir = RayCast(refDir * max(1.0, -viewPos.z), hitPos, dDepth);
+	float weight = 1.0;
+	vec4 ssrColor = baseColor;
 	
 	// Only do reflections on visible surfaces
-	vec2 coords = vec2(-1.0);
-	
 	if (texture2D(uDepthBuffer, vTexCoord).a > 0.0 && uMetallic > 0.01)
 	{
-		coords = RayCast(reflected * max(1.0, -viewPos.z), hitPos, dDepth);	
-	
-		if (dDepth > 0.0)
-			coords = vec2(-1.0);
+		// Sample positions
+		for (int i = 0; i < SAMPLES; i++)
+		{
+			hitPos = viewPos;
+			dDepth = -1.0;
+			
+			vec3 jitt = mix(vec3(0.0), (vec3(hash(wp + float(i))) - 0.5) * 2.0, mix(0.0, 0.20, uRoughness));
+			vec3 reflected = normalize(reflect(hitPos, normalize(viewNormal + jitt)));
+			
+			vec2 coords = RayCast(reflected * max(1.0, -viewPos.z), hitPos, dDepth);
+			
+			if (dDepth > 0.0)
+				coords = vec2(-1.0);
+			
+			if (coords.x >= 0.0)
+			{
+				vec2 dCoords = smoothstep(0.2, 0.6, abs(vec2(0.5, 0.5) - coords.xy));
+				float screenEdgefactor = clamp(1.0 - (dCoords.x + dCoords.y), 0.0, 1.0);
+				
+				ssrColor.rgb += texture2D(uColorBuffer, coords).rgb * screenEdgefactor;
+				weight += screenEdgefactor;
+			}
+			else
+			{
+				ssrColor.rgb += baseColor.rgb;
+				weight += 1.0;
+			}
+		}
 	}
 	
-	// Calculate screen fade
-	vec2 dCoords = smoothstep(0.2, 0.6, abs(vec2(0.5, 0.5) - coords.xy));
-	float screenEdgefactor = clamp(1.0 - (dCoords.x + dCoords.y), 0.0, 1.0);
+	ssrColor.rgb /= weight;
 	
 	// Reflection amount
-	float refAmount = pow(uMetallic, specularFalloffExp) * screenEdgefactor * reflected.z;
+	float refAmount = pow(uMetallic, specularFalloffExp) * refDir.z;
 	
-	if (coords.x >= 0.0)
-		ssr.rgb = texture2D(uColorBuffer, coords).rgb;
-	else
-		ssr.rgb = baseColor.rgb;
+	ssrColor.rgb = mix(baseColor.rgb, ssrColor.rgb, uMetallic * clamp(refAmount, 0.0, 0.9) * fresnel);
 	
-	ssr.rgb = mix(baseColor.rgb, ssr.rgb, uMetallic * clamp(refAmount, 0.0, 0.9) * fresnel);
-	
-	gl_FragColor = ssr;
+	gl_FragColor = ssrColor;
 	gl_FragColor.a = baseColor.a;
 }

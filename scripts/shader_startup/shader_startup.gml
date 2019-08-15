@@ -376,7 +376,7 @@ with (shader_map[?shader_high_ssr])
 	new_shader_uniform("uRefineSteps")
 	new_shader_uniform("uRefineDepthTest")
 	new_shader_uniform("uMetallic")
-	new_shader_uniform("uSpecular")
+	new_shader_uniform("uRoughness")
 }
 
 with (shader_map[?shader_high_ssr_apply])

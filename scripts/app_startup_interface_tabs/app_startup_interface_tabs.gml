@@ -580,7 +580,9 @@ with (settings)
 		tbx_ssr_step_refine_amount = new_textbox_decimals()
 		tbx_ssr_step_refine_depth = new_textbox_decimals()
 		tbx_ssr_metallic = new_textbox_integer()
-		tbx_ssr_specular = new_textbox_integer()
+		tbx_ssr_metallic.suffix = "%"
+		tbx_ssr_roughness = new_textbox_integer()
+		tbx_ssr_roughness.suffix = "%"
 		
 		tbx_glow_radius = new_textbox_integer()
 		tbx_glow_radius.suffix = "%"

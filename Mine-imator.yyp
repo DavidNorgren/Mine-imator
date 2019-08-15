@@ -5962,7 +5962,7 @@
             "Key": "63954ad5-4577-4d14-a9db-c0ee2210e951",
             "Value": {
                 "id": "4559f7fc-bdd2-4dac-9d20-86b826d93b84",
-                "resourcePath": "scripts\\action_setting_render_ssr_specular\\action_setting_render_ssr_specular.yy",
+                "resourcePath": "scripts\\action_setting_render_ssr_roughness\\action_setting_render_ssr_roughness.yy",
                 "resourceType": "GMScript"
             }
         },

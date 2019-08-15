@@ -95,14 +95,14 @@ if (setting_render_ssr && checkbox_expand_settings_ssr)
 	"settingsrenderssrrefineamount",
 	"settingsrenderssrrefinedepth",
 	"settingsrenderssrrefinemetallic",
-	"settingsrenderssrrefinespecular")
+	"settingsrenderssrrefineroughness")
 	
 	tab_control_meter()
-	draw_meter("settingsrenderssrstepsize", dx, dy, dw, setting_render_ssr_step_size, 50, 1, 50, 2, 0.01, tab.render.tbx_ssr_step_size, action_setting_render_ssr_step_size, capwid)
+	draw_meter("settingsrenderssrstepsize", dx, dy, dw, setting_render_ssr_step_size, 50, 0.01, 50, 2, 0.01, tab.render.tbx_ssr_step_size, action_setting_render_ssr_step_size, capwid)
 	tab_next()
 	
 	tab_control_meter()
-	draw_meter("settingsrenderssrstepamount", dx, dy, dw, setting_render_ssr_step_amount, 50, 1, 200, 140, 1, tab.render.tbx_ssr_step_amount, action_setting_render_ssr_step_amount, capwid)
+	draw_meter("settingsrenderssrstepamount", dx, dy, dw, setting_render_ssr_step_amount, 50, 1, 500, 140, 1, tab.render.tbx_ssr_step_amount, action_setting_render_ssr_step_amount, capwid)
 	tab_next()
 	
 	tab_control_meter()
@@ -118,7 +118,7 @@ if (setting_render_ssr && checkbox_expand_settings_ssr)
 	tab_next()
 	
 	tab_control_meter()
-	draw_meter("settingsrenderssrspecular", dx, dy, dw, round(setting_render_ssr_specular * 100), 50, 0, 100, 100, 1, tab.render.tbx_ssr_specular, action_setting_render_ssr_specular, capwid)
+	draw_meter("settingsrenderssrroughness", dx, dy, dw, round(setting_render_ssr_roughness * 100), 50, 0, 100, 0, 1, tab.render.tbx_ssr_roughness, action_setting_render_ssr_roughness, capwid)
 	tab_next()
 }
 

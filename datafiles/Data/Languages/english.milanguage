@@ -4,7 +4,7 @@
         "language": "English",
         "translator": "David & Nimi",
         "forversion": "1.2.2",
-        "lastchange": "2019.01.12"
+        "lastchange": "2019.08.15"
     },
     "startup/": {
         "caption": "Startup screen",
@@ -2894,7 +2894,9 @@
 				"refinedepth": "Refine depth",
 				"refinedepthtip": "The skipped depth amount to start refining.",
 				"metallic": "Metallic",
-				"specular": "Specular"
+				"metallictip": "Metallic amount.",
+				"roughness": "Roughness",
+				"roughnesstip": "Roughness amount."
 			},
             "aa": "AA",
             "aatip": "Enable AA (Anti Aliasing) in rendered images to get rid of sharp edges.",

@@ -197,7 +197,7 @@ setting_render_ssr_step_amount = 140
 setting_render_ssr_refine_amount = 25
 setting_render_ssr_refine_depth = 4
 setting_render_ssr_metallic = 1
-setting_render_ssr_specular = 1
+setting_render_ssr_roughness = 0
 
 setting_export_movie_format = "mp4"
 setting_export_movie_frame_rate = 30
