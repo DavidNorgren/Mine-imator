@@ -66,7 +66,7 @@ if (!argument0)
 	json_load_char()
 
 // Clean up on error
-if (json_error)
+if (json_error != "")
 {
 	ds_map_destroy(map)
 	return false

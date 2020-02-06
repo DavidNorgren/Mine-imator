@@ -37,7 +37,7 @@ while (json_load_char())
 }
 
 // Clean up on error
-if (json_error)
+if (json_error != "")
 {
 	ds_list_destroy(list)
 	return false

@@ -1,6 +1,6 @@
 #define MAXSTEPS 500
 #define MAXREFINESTEPS 30
-#define SAMPLES 6
+#define SAMPLES 1
 
 varying vec2 vTexCoord;
 
@@ -133,12 +133,12 @@ vec2 RayCast(vec3 dir, inout vec3 hitCoord, out float dDepth)
 
 		projectedCoord = uProjMatrix * vec4(hitCoord, 1.0);
 		screenCoord = (projectedCoord.xy / projectedCoord.w) * 0.5 + 0.5;
-		screenCoord.y = 1.0 - screenCoord.y;
-		
-		screenPos = posFromBuffer(screenCoord, getDepth(screenCoord));
 		
 		if (screenCoord.x < 0.0 || screenCoord.x > 1.0 || screenCoord.y < 0.0 || screenCoord.y > 1.0)
 			break;
+		
+		screenCoord.y = 1.0 - screenCoord.y;
+		screenPos = posFromBuffer(screenCoord, getDepth(screenCoord));
 		
 		dDepth = screenPos.z - hitCoord.z;
 		
@@ -178,12 +178,12 @@ void main()
 	// Fresnel
 	vec3 F0 = vec3(0.04);
 	F0 = mix(F0, vec3(0.0), uMetallic);
-	vec3 fresnel = fresnelSchlick(max(dot(normalize(viewNormal), normalize(viewPos)), 0.0), F0);
+	vec3 fresnel = fresnelSchlick(max(dot(viewNormal, normalize(viewPos)), 0.0), F0);
 	
 	vec3 wp = vec3(vec4(viewPos, 1.0) * uViewMatrixInv);
 	
 	// Direct reflect vector
-	vec3 refDir = normalize(reflect(hitPos, normalize(viewNormal)));
+	vec3 refDir = normalize(reflect(hitPos, viewNormal));
 	vec2 coordsDir = RayCast(refDir * max(1.0, -viewPos.z), hitPos, dDepth);
 	float weight = 1.0;
 	vec4 ssrColor = baseColor;

@@ -472,7 +472,7 @@ if (setting_render_ssr)
 	surface_set_target_ext(1, normalsurf)
 	{
 		draw_clear_alpha(c_white, 0)
-		render_world_start(5000)
+		render_world_start(1000)
 		render_world(e_render_mode.HIGH_SSAO_DEPTH_NORMAL)
 		render_world_done()
 	}
