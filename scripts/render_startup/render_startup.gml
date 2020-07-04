@@ -82,6 +82,7 @@ render_mode_shader_map[?e_render_mode.COLOR_FOG_LIGHTS] = shader_color_fog_light
 render_mode_shader_map[?e_render_mode.ALPHA_FIX] = shader_alpha_fix
 render_mode_shader_map[?e_render_mode.ALPHA_TEST] = shader_alpha_test
 render_mode_shader_map[?e_render_mode.HIGH_SSAO_DEPTH_NORMAL] = shader_high_ssao_depth_normal
+render_mode_shader_map[?e_render_mode.HIGH_SSR_DEPTH_NORMAL] = shader_high_ssr_depth_normal
 render_mode_shader_map[?e_render_mode.HIGH_DOF_DEPTH] = shader_depth
 render_mode_shader_map[?e_render_mode.HIGH_LIGHT_SUN_DEPTH] = shader_depth
 render_mode_shader_map[?e_render_mode.HIGH_LIGHT_SPOT_DEPTH] = shader_depth

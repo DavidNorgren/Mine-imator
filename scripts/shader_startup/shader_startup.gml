@@ -43,6 +43,7 @@ if (!err)
 	new_shader("shader_high_ssao")
 	new_shader("shader_high_ssao_blur")
 	new_shader("shader_high_ssao_depth_normal")
+	new_shader("shader_high_ssr_depth_normal")
 	new_shader("shader_color_glow")
 	new_shader("shader_high_bloom_threshold")
 	new_shader("shader_add")
@@ -303,6 +304,12 @@ with (shader_map[?shader_high_ssao_depth_normal])
 	new_shader_uniform("uFar")
 }
 
+with (shader_map[?shader_high_ssr_depth_normal])
+{
+	new_shader_uniform("uNear")
+	new_shader_uniform("uFar")
+}
+
 with (shader_map[?shader_color_glow])
 {
 	new_shader_uniform("uColorsExt")
@@ -365,11 +372,13 @@ with (shader_map[?shader_high_ssr])
 {
 	new_shader_sampler("uDepthBuffer")
 	new_shader_sampler("uNormalBuffer")
+	new_shader_sampler("uNormalBufferExp")
 	new_shader_sampler("uColorBuffer")
 	new_shader_uniform("uNear")
 	new_shader_uniform("uFar")
 	new_shader_uniform("uProjMatrix")
 	new_shader_uniform("uProjMatrixInv")
+	new_shader_uniform("uViewMatrix")
 	new_shader_uniform("uViewMatrixInv")
 	new_shader_uniform("uStepSize")
 	new_shader_uniform("uStepAmount")
@@ -377,6 +386,7 @@ with (shader_map[?shader_high_ssr])
 	new_shader_uniform("uRefineDepthTest")
 	new_shader_uniform("uMetallic")
 	new_shader_uniform("uRoughness")
+	new_shader_uniform("uSkyColor")
 }
 
 with (shader_map[?shader_high_ssr_apply])

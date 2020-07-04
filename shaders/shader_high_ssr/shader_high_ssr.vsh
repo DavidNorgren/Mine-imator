@@ -1,4 +1,4 @@
-/// shader_high_aa
+/// shader_high_ssr
 
 attribute vec3 in_Position;
 attribute vec4 in_Colour;

@@ -7,11 +7,13 @@ varying vec2 vTexCoord;
 // Buffers
 uniform sampler2D uDepthBuffer;
 uniform sampler2D uNormalBuffer;
+uniform sampler2D uNormalBufferExp;
 uniform sampler2D uColorBuffer;
 
 // Camera data
 uniform mat4 uProjMatrix;
 uniform mat4 uProjMatrixInv;
+uniform mat4 uViewMatrix;
 uniform mat4 uViewMatrixInv;
 uniform float uNear;
 uniform float uFar;
@@ -24,6 +26,8 @@ uniform float uRefineDepthTest; // Default 4.0
 uniform float uMetallic; // Default: 1.0
 uniform float uRoughness; // Default: 0.0
 const float specularFalloffExp = 3.0;
+
+uniform vec4 uSkyColor;
 
 // Unpacks depth value from packed color
 float unpackDepth(vec4 c)
@@ -50,20 +54,22 @@ vec3 posFromBuffer(vec2 coord, float depth)
 	return pos.xyz / pos.w;
 }
 
-// Unpacks normal from packed color
-vec3 unpackNormal(vec4 c)
+float unpackFloat2(float expo, float dec)
 {
-	return c.rgb * 2.0 - 1.0;
+	return (expo * 255.0 * 255.0) + (dec * 255.0);
 }
 
-// Returns normal from packed normal buffer
+// Get normal Value
 vec3 getNormal(vec2 coords)
 {
-	return unpackNormal(texture2D(uNormalBuffer, coords));
+	vec3 nDec = texture2D(uNormalBuffer, coords).rgb;
+	vec3 nExp = texture2D(uNormalBufferExp, coords).rgb;
+	
+	return (vec3(unpackFloat2(nExp.r, nDec.r), unpackFloat2(nExp.g, nDec.g), unpackFloat2(nExp.b, nDec.b)) / (255.0 * 255.0)) * 2.0 - 1.0;
 }
 
 // Fresnel Schlick approximation
-vec3 fresnelSchlick(float cosTheta, vec3 F0)
+float fresnelSchlick(float cosTheta, float F0)
 {
 	return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
@@ -164,29 +170,20 @@ vec2 RayCast(vec3 dir, inout vec3 hitCoord, out float dDepth)
 
 void main()
 {
-	float depth = getDepth(vTexCoord);
-	vec3 viewNormal = normalize(getNormal(vTexCoord));
-	
-	vec3 viewPos = posFromBuffer(vTexCoord, depth);
-	
-	vec3 hitPos = viewPos;
-	float dDepth = -1.0;
-	
-	vec4 baseColor = texture2D(uColorBuffer, vTexCoord);
-	vec4 ssr = baseColor;
-	
-	// Fresnel
-	vec3 F0 = vec3(0.04);
-	F0 = mix(F0, vec3(0.0), uMetallic);
-	vec3 fresnel = fresnelSchlick(max(dot(viewNormal, normalize(viewPos)), 0.0), F0);
+	// Sample buffers
+	vec4 diffuseColor = texture2D(uColorBuffer, vTexCoord);
+	vec3 viewPos = posFromBuffer(vTexCoord, getDepth(vTexCoord));
+	vec3 viewNormal = getNormal(vTexCoord);
 	
 	vec3 wp = vec3(vec4(viewPos, 1.0) * uViewMatrixInv);
+	vec3 wn = normalize(vec3(vec4(viewNormal, 0.0) * uViewMatrix));
 	
-	// Direct reflect vector
-	vec3 refDir = normalize(reflect(hitPos, viewNormal));
-	vec2 coordsDir = RayCast(refDir * max(1.0, -viewPos.z), hitPos, dDepth);
+	vec3 hitPos = viewPos;
+	
 	float weight = 1.0;
-	vec4 ssrColor = baseColor;
+	vec4 refColor = diffuseColor;
+	vec2 coords = vec2(0.0);
+	float dDepth = -1.0;
 	
 	// Only do reflections on visible surfaces
 	if (texture2D(uDepthBuffer, vTexCoord).a > 0.0 && uMetallic > 0.01)
@@ -200,34 +197,46 @@ void main()
 			vec3 jitt = mix(vec3(0.0), (vec3(hash(wp + float(i))) - 0.5) * 2.0, mix(0.0, 0.20, uRoughness));
 			vec3 reflected = normalize(reflect(hitPos, normalize(viewNormal + jitt)));
 			
-			vec2 coords = RayCast(reflected * max(1.0, -viewPos.z), hitPos, dDepth);
+			coords = RayCast(reflected, hitPos, dDepth);
 			
 			if (dDepth > 0.0)
 				coords = vec2(-1.0);
 			
 			if (coords.x >= 0.0)
 			{
-				vec2 dCoords = smoothstep(0.2, 0.6, abs(vec2(0.5, 0.5) - coords.xy));
-				float screenEdgefactor = clamp(1.0 - (dCoords.x + dCoords.y), 0.0, 1.0);
+				vec2 fadeCoords = smoothstep(0.2, 0.6, abs(vec2(0.5, 0.5) - coords.xy));
+				float fadeAmount = clamp(1.0 - (fadeCoords.x + fadeCoords.y), 0.0, 1.0);
 				
-				ssrColor.rgb += texture2D(uColorBuffer, coords).rgb * screenEdgefactor;
-				weight += screenEdgefactor;
+				refColor.rgb += texture2D(uColorBuffer, coords).rgb * fadeAmount;
+				weight += fadeAmount;
 			}
 			else
 			{
-				ssrColor.rgb += baseColor.rgb;
+				refColor.rgb += uSkyColor.rgb;
 				weight += 1.0;
 			}
 		}
 	}
 	
-	ssrColor.rgb /= weight;
+	refColor.rgb /= weight;
 	
 	// Reflection amount
-	float refAmount = pow(uMetallic, specularFalloffExp) * refDir.z;
+	vec3 refDir = reflect(viewPos, viewNormal);
+	float refAmount = clamp(pow(uMetallic, specularFalloffExp) * refDir.z, 0.0, 0.9);
 	
-	ssrColor.rgb = mix(baseColor.rgb, ssrColor.rgb, uMetallic * clamp(refAmount, 0.0, 0.9) * fresnel);
+	// Fresnel
+	float F0 = 0.04;
+	F0 = mix(F0, 0.0, uMetallic);
+	float fresnel = fresnelSchlick(max(dot(viewNormal, normalize(viewPos)), 0.0), F0);
 	
-	gl_FragColor = ssrColor;
-	gl_FragColor.a = baseColor.a;
+	float vis = refAmount * fresnel;
+	
+	// Optional, limits reflections to surfaces facing up
+	//vis *= max(0.0, wn.z);
+	
+	// Combine visibility inputs and mix result
+	vec4 blendColor = mix(diffuseColor, refColor, vis);
+	
+	gl_FragColor = blendColor;
+	gl_FragColor.a = diffuseColor.a;
 }

@@ -461,19 +461,23 @@ if (render_camera_bloom || render_camera_dof || setting_render_glow || setting_r
 #region SSR
 if (setting_render_ssr)
 {
-	var coordsurf, prevsurf, depthsurf, normalsurf;
+	var coordsurf, prevsurf, depthsurf, normalsurf, normalsurf2;
 	prevsurf = finalsurf
 	
 	render_surface[2] = surface_require(render_surface[2], render_width, render_height) // Depth
-	render_surface[3] = surface_require(render_surface[3], render_width, render_height) // Normals
+	render_surface[3] = surface_require(render_surface[3], render_width, render_height) // Normals (decimal)
+	render_surface[nextfinalpos] = surface_require(render_surface[nextfinalpos], render_width, render_height) // Normals (multiple)
 	depthsurf = render_surface[2]
 	normalsurf = render_surface[3]
+	normalsurf2 = render_surface[nextfinalpos]
+	
 	surface_set_target_ext(0, depthsurf)
 	surface_set_target_ext(1, normalsurf)
+	surface_set_target_ext(2, normalsurf2)
 	{
 		draw_clear_alpha(c_white, 0)
-		render_world_start(1000)
-		render_world(e_render_mode.HIGH_SSAO_DEPTH_NORMAL)
+		render_world_start(5000)
+		render_world(e_render_mode.HIGH_SSR_DEPTH_NORMAL)
 		render_world_done()
 	}
 	surface_reset_target()
@@ -490,7 +494,7 @@ if (setting_render_ssr)
         with (render_shader_obj)
         {
             shader_set(shader)
-            shader_high_ssr_set(depthsurf, normalsurf, prevsurf)
+            shader_high_ssr_set(depthsurf, normalsurf, normalsurf2, prevsurf)
         }
 		
         draw_blank(0, 0, render_width, render_height)
