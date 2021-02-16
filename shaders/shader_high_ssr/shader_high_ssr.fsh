@@ -69,9 +69,10 @@ vec3 getNormal(vec2 coords)
 }
 
 // Fresnel Schlick approximation
-float fresnelSchlick(float cosTheta, float F0)
+float fresnelSchlick(float cosTheta, float F0, float roughness)
 {
-	return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+	return F0 + (max((1.0 - roughness), F0) - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
+	//return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
 // Hash scatter function
@@ -186,7 +187,7 @@ void main()
 	float dDepth = -1.0;
 	
 	// Only do reflections on visible surfaces
-	if (texture2D(uDepthBuffer, vTexCoord).a > 0.0 && uMetallic > 0.01)
+	if (texture2D(uDepthBuffer, vTexCoord).a > 0.0)
 	{
 		// Sample positions
 		for (int i = 0; i < SAMPLES; i++)
@@ -207,8 +208,8 @@ void main()
 				vec2 fadeCoords = smoothstep(0.2, 0.6, abs(vec2(0.5, 0.5) - coords.xy));
 				float fadeAmount = clamp(1.0 - (fadeCoords.x + fadeCoords.y), 0.0, 1.0);
 				
-				refColor.rgb += texture2D(uColorBuffer, coords).rgb * fadeAmount;
-				weight += fadeAmount;
+				refColor.rgb += texture2D(uColorBuffer, coords).rgb;//mix(texture2D(uColorBuffer, coords).rgb, uSkyColor.rgb, 1.0 - fadeAmount);
+				weight += 1.0;
 			}
 			else
 			{
@@ -221,21 +222,35 @@ void main()
 	refColor.rgb /= weight;
 	
 	// Reflection amount
-	vec3 refDir = reflect(viewPos, viewNormal);
-	float refAmount = clamp(pow(uMetallic, specularFalloffExp) * refDir.z, 0.0, 0.9);
+	//vec3 refDir = reflect(viewPos, viewNormal);
+	//float refAmount = clamp(pow(uMetallic, specularFalloffExp) * refDir.z, 0.0, 0.9);
 	
 	// Fresnel
 	float F0 = 0.04;
 	F0 = mix(F0, 0.0, uMetallic);
-	float fresnel = fresnelSchlick(max(dot(viewNormal, normalize(viewPos)), 0.0), F0);
 	
-	float vis = refAmount * fresnel;
+	
+	float F = fresnelSchlick(max(dot(viewNormal, normalize(viewPos)), 0.0), F0, uRoughness);
+	
+	// Metallic should remove ambience, has no affect on reflections
+	
+	/*
+	float kD = 1.0 - F;
+	kD = 1.0 - uMetallic;
+	*/
+	
+	float vis = F;
 	
 	// Optional, limits reflections to surfaces facing up
 	//vis *= max(0.0, wn.z);
 	
 	// Combine visibility inputs and mix result
-	vec4 blendColor = mix(diffuseColor, refColor, vis);
+	vec4 blendColor = diffuseColor;
+	
+	if (texture2D(uDepthBuffer, vTexCoord).a > 0.0)
+		blendColor = (diffuseColor + (refColor * vis));
+	
+	//vec4 blendColor = (diffuseColor + (refColor * vis));
 	
 	gl_FragColor = blendColor;
 	gl_FragColor.a = diffuseColor.a;
